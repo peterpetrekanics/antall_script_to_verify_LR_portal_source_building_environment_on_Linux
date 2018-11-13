@@ -14,4 +14,5 @@ The script can:
 - display a desktop notification once the build process has finished
 
 The script must be executed from the Liferay Portal git repository's local folder
+
 Tested on: Ubuntu 16.04 on 13 Nov 2018
