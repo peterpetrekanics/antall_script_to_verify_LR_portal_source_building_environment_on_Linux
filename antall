@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# This linux specific bash script helps users in building Liferay Portal source code
+# 
+# The script works only with: Liferay on a Tomcat bundle; with the Ant build tool; with a MySQL database
+#
+# The script can:
+# - check tomcat version 
+# - the folder where the source will be built to
+# - the current contents of the destination folder
+# - check the current git repository 
+# - check the current liferay version
+# - check the gradle.properties file settings
+# - display a desktop notification once the build process has finished
+# 
+# The script must be executed from the Liferay Portal git repository's local folder
+# Tested on: Ubuntu 16.04 on 13 Nov 2018
+
+echo ""
+echo "   This script will display useful information before building the Liferay Portal source code:"
+echo ""
+
+
+currentbranch=$(git branch | grep \*)
+echo "Your current branch is: "$currentbranch
+echo ""
+
+
+tomcat_version=$(sed -nr '/app.server.tomcat.version=/ s/^    app.server.tomcat.version=([^"]+).*/\1/p' app.server.properties)
+echo "Info from the app.server.properties file:"
+echo " app.server.tomcat.version="$tomcat_version
+echo ""
+
+
+myUserName=$(whoami)
+mytomcat_version=$(sed -nr '/app.server.tomcat.version=/ s/^app.server.tomcat.version=([^"]+).*/\1/p' app.server.$myUserName.properties)
+appserverparentdir=$(sed -nr '/app.server.parent.dir=/ s/^app.server.parent.dir=([^"]+).*/\1/p' app.server.$myUserName.properties)
+echo "Info from the app.server."$myUserName".properties file:"
+echo " app.server.tomcat.version="$mytomcat_version
+echo " The folder where the source will be built to -> "$appserverparentdir
+echo " Contents of that folder:"
+ls $appserverparentdir
+echo ""
+
+
+gitworkingbranchname=$(sed -nr '/git.working.branch.name=/ s/^git.working.branch.name=([^"]+).*/\1/p' .gradle/gradle.properties)
+liferayrelengproductdisplayname=$(sed -nr '/liferay.releng.product.display.name=/ s/^liferay.releng.product.display.name=([^"]+).*/\1/p' .gradle/gradle.properties)
+echo "Info from the .gradle/gradle.properties file:"
+echo " git.working.branch.name="$gitworkingbranchname
+echo " liferay.releng.product.display.name="$liferayrelengproductdisplayname
+echo ""
+
+
+echo ""
+isTomcatRunning=$(ps -ef | awk '/[t]omcat/{print $2}')
+if [ -z "$isTomcatRunning" ]; then
+    echo "Tomcat is not running"
+else
+    echo " ** Be careful! Tomcat is running!"
+fi
+echo ""
+
+
+echo -e "Would you like to issue the ant all command now? (y/n)"
+
+read startantall
+
+if [ $startantall = "y" ]; then
+echo "* Build process is starting"
+ant all
+notify-send "FINISHED!" "The build process has now finished" -t 25000
+
+else [ $startantall = "n" ]
+echo "Ok, the script will now stop"
+exit
+fi
+
+echo -e " Script has ended."
+
