@@ -1,0 +1,1 @@
+# antall_script_to_verify_LR_portal_source_building_environment_on_Linux
