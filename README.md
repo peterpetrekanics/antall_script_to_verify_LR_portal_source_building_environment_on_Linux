@@ -3,6 +3,7 @@
 This linux specific bash script helps users in building Liferay Portal source code
 
 The script works only with: Liferay on a Tomcat bundle; with the Ant build tool; with a MySQL database
+
 The script can:
 - check tomcat version 
 - the folder where the source will be built to
